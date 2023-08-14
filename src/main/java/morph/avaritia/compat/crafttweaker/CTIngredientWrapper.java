@@ -24,4 +24,12 @@ public class CTIngredientWrapper extends Ingredient {
     public boolean apply(@Nullable ItemStack stack) {
         return ingredient.matches(MCItemStack.createNonCopy(stack));
     }
+
+    public ItemStack getRemainedItem(ItemStack stack) {
+        return CraftTweakerMC.getItemStack(ingredient.applyNewTransform(CraftTweakerMC.getIItemStack(stack)));
+    }
+
+    public IIngredient getIngredient() {
+        return ingredient;
+    }
 }

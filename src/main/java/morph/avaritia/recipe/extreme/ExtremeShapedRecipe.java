@@ -5,12 +5,16 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
+import crafttweaker.api.item.IIngredient;
+import crafttweaker.api.minecraft.CraftTweakerMC;
+import morph.avaritia.compat.crafttweaker.CTIngredientWrapper;
 import net.minecraft.inventory.InventoryCrafting;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.Ingredient;
 import net.minecraft.util.JsonUtils;
 import net.minecraft.util.NonNullList;
 import net.minecraft.world.World;
+import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.common.crafting.CraftingHelper;
 import net.minecraftforge.common.crafting.CraftingHelper.ShapedPrimer;
 import net.minecraftforge.common.crafting.JsonContext;
@@ -62,6 +66,23 @@ public class ExtremeShapedRecipe extends ExtremeRecipeBase {
         }
 
         return false;
+    }
+
+    @Override
+    public NonNullList<ItemStack> getRemainingItems(InventoryCrafting inv) {
+        NonNullList<ItemStack> ret = NonNullList.withSize(inv.getSizeInventory(), ItemStack.EMPTY);
+        for (int i = 0; i < ret.size(); i++) {
+            Ingredient ingredient = input.get(i);
+            if (ingredient instanceof CTIngredientWrapper) {
+                IIngredient ctIngredient = ((CTIngredientWrapper) ingredient).getIngredient();
+                if (ctIngredient.hasNewTransformers()) {
+                    ret.set(i, CraftTweakerMC.getItemStack(ctIngredient.applyNewTransform(CraftTweakerMC.getIItemStack(inv.getStackInSlot(i)))));
+                }
+            } else {
+                ret.set(i, ForgeHooks.getContainerItem(inv.getStackInSlot(i)));
+            }
+        }
+        return ret;
     }
 
     /**
